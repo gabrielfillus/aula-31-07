@@ -1,0 +1,217 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matemática e Segurança Digital</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            color: #212529;
+            line-height: 1.5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 25px;
+        }
+        .content h2 {
+            font-size: 1.4rem;
+            color: #343a40;
+            margin-bottom: 15px;
+        }
+        .content p {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        .example {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .example h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .input-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .input-section input[type="text"] {
+            padding: 12px;
+            font-size: 1rem;
+            width: 250px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .input-section input[type="text"]:focus {
+            border-color: #007bff;
+        }
+        .input-section button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+        .input-section button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #28a745;
+            font-weight: 500;
+            min-height: 24px;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .footer {
+            background-color: #343a40;
+            color: #ffffff;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Matemática na Segurança Digital</h1>
+            <p>Entenda como a criptografia protege suas informações</p>
+        </div>
+        <div class="content">
+            <h2>A Importância da Matemática</h2>
+            <p>A segurança digital, como em senhas e transações online, depende da criptografia, que usa matemática para codificar dados. A Cifra de César, um exemplo simples, desloca letras no alfabeto por um número fixo, dificultando a leitura por pessoas não autorizadas.</p>
+            
+            <div class="example">
+                <h3>Exemplo: Cifra de César (Deslocamento 3)</h3>
+                <p>Neste método, cada letra avança 3 posições no alfabeto. Por exemplo:</p>
+                <ul>
+                    <li>A → D (A é a 1ª letra, D é a 4ª)</li>
+                    <li>B → E (B é a 2ª letra, E é a 5ª)</li>
+                    <li>Z → C (Z é a 26ª, volta para C após o fim do alfabeto)</li>
+                </ul>
+                <p>Matematicamente: <strong>C = (P + 3) mod 26</strong>, onde P é a posição da letra (A=0, B=1, ..., Z=25).</p>
+            </div>
+
+            <div class="input-section">
+                <h2>Teste a Criptografia</h2>
+                <input type="text" id="inputWord" placeholder="Digite uma palavra" maxlength="50">
+                <button onclick="encryptWord()">Criptografar</button>
+                <div id="output" class="output"></div>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Projeto educativo sobre criptografia e matemática</p>
+        </div>
+    </div>
+
+    <script>
+        function encryptWord() {
+            const input = document.getElementById('inputWord').value.trim();
+            const outputDiv = document.getElementById('output');
+            const shift = 3;
+
+            // Validação da entrada
+            if (!input) {
+                outputDiv.textContent = 'Por favor, digite uma palavra!';
+                outputDiv.classList.add('error');
+                return;
+            }
+            if (!input.match(/^[a-zA-Z\s]+$/)) {
+                outputDiv.textContent = 'Use apenas letras e espaços!';
+                outputDiv.classList.add('error');
+                return;
+            }
+
+            let result = '';
+            for (let i = 0; i < input.length; i++) {
+                const char = input[i].toUpperCase();
+                if (char.match(/[A-Z]/)) {
+                    const position = char.charCodeAt(0) - 65; // A=0, B=1, ..., Z=25
+                    const newPosition = (position + shift) % 26; // Deslocamento 3
+                    result += String.fromCharCode(newPosition + 65); // Volta para letra
+                } else {
+                    result += char; // Mantém espaços
+                }
+            }
+
+            outputDiv.textContent = `Palavra criptografada: ${result}`;
+            outputDiv.classList.remove('error');
+        }
+    </script>
+</body>
+</html>
